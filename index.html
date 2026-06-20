@@ -440,7 +440,7 @@ label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bot
 // ── API CONFIG ─────────────────────────────────────────────────
 // วาง URL จาก Google Apps Script (Deploy > Web app) ตรงนี้
 // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycb.../exec'
-var API_URL = 'https://script.google.com/macros/s/Kfycby4Brj5XIZI8WRfJCeG1q91GVikNrjyyid2qnJvnTF3MI8aju-tTLjfxeFpSEDvr4bG/exec';
+var API_URL = 'https://script.google.com/macros/s/AKfycby4Brj5XIZI8WRfJCeG1q91GVikNrjyyid2qnJvnTF3MI8aju-tTLjfxeFpSEDvr4bG/exec';
 
 // ── data store ──────────────────────────────────────────────────
 var receipts = [];
@@ -495,11 +495,11 @@ async function fetchReceiptsFromSheet(){
 async function saveReceiptToSheet(rec){
   if(!apiConfigured()) return {status:'no-api'};
   try {
-    var res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'}, // Apps Script ใช้ text/plain เพื่อเลี่ยง CORS preflight
-      body: JSON.stringify(rec)
-    });
+    // ใช้ GET แทน POST เพื่อหลีกเลี่ยงปัญหา CORS บน iOS
+    // ส่งข้อมูลผ่าน query parameter แทน
+    var encoded = encodeURIComponent(JSON.stringify(rec));
+    var url = API_URL + '?action=save&data=' + encoded;
+    var res = await fetch(url, {method:'GET', mode:'cors'});
     var data = await res.json();
     return data;
   } catch(err) {
